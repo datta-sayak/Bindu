@@ -353,7 +353,7 @@ Output:
                         "kind": "text",
                         "text": "Quote",
                         "metadata": {
-                            "did.message.signature": "5opJuKrBDW4woezujm88FzTqRDWAB62qD3wxKz96Bt2izfuzsneo3zY7yqHnV77cq3BDKepdcro2puiGTVAB52qf"
+                            "did.message.signature": "5opJuKrBDW4woezujm88FzTqRDWAB62qD3wxKz96Bt2izfuzsneo3zY7yqHnV77cq3BDKepdcro2puiGTVAB52qf"  # pragma: allowlist secret
                         }
                     }
                 ]
@@ -865,17 +865,17 @@ assessment:
     - extract
     - table
     - invoice
-  
+
   specializations:
     - domain: invoice_processing
       confidence_boost: 0.3
     - domain: table_extraction
       confidence_boost: 0.2
-  
+
   anti_patterns:
     - "pdf editing"
     - "pdf creation"
-  
+
   complexity_indicators:
     simple:
       - "single page"
@@ -929,7 +929,7 @@ config = {
 </details>
 
 > 📚 See the [Negotiation Documentation](https://docs.getbindu.com/bindu/negotiation/overview) for complete details.
- 
+
 ---
 
 <br/>
@@ -968,6 +968,128 @@ Feedback is stored in the `task_feedback` table and can be used to:
 - Identify patterns in successful vs. unsuccessful completions
 - Optimize agent instructions and few-shot examples with DSPy
 - We are working on the DsPY - will release soon.
+
+---
+
+<br/>
+
+## 📬 Push Notifications
+
+Bindu supports **real-time webhook notifications** for long-running tasks, following the [A2A Protocol specification](https://a2a-protocol.org/latest/specification/). This enables clients to receive push notifications about task state changes and artifact generation without polling.
+
+### Quick Start
+
+1. **Start webhook receiver:** `python examples/webhook_client_example.py`
+2. **Configure agent** in `examples/echo_agent_with_webhooks.py`:
+   ```python
+   manifest = {
+       "capabilities": {"push_notifications": True},
+       "global_webhook_url": "http://localhost:8000/webhooks/task-updates",
+       "global_webhook_token": "secret_abc123",
+   }
+   ```
+3. **Run agent:** `python examples/echo_agent_with_webhooks.py`
+4. **Send tasks** - webhook notifications arrive automatically
+
+<details>
+<summary><b>View webhook receiver implementation</b> (click to expand)</summary>
+
+```python
+from fastapi import FastAPI, Request, Header, HTTPException
+
+@app.post("/webhooks/task-updates")
+async def handle_task_update(request: Request, authorization: str = Header(None)):
+    if authorization != "Bearer secret_abc123":
+        raise HTTPException(status_code=401)
+
+    event = await request.json()
+
+    if event["kind"] == "status-update":
+        print(f"Task {event['task_id']} state: {event['status']['state']}")
+    elif event["kind"] == "artifact-update":
+        print(f"Artifact generated: {event['artifact']['name']}")
+
+    return {"status": "received"}
+```
+
+</details>
+
+<details>
+<summary><b>View notification event types</b> (click to expand)</summary>
+
+<br/>
+
+**Status Update Event** - Sent when task state changes:
+```json
+{
+  "kind": "status-update",
+  "task_id": "123e4567-...",
+  "status": {"state": "working"},
+  "final": false
+}
+```
+
+**Artifact Update Event** - Sent when artifacts are generated:
+```json
+{
+  "kind": "artifact-update",
+  "task_id": "123e4567-...",
+  "artifact": {
+    "artifact_id": "456e7890-...",
+    "name": "results.json",
+    "parts": [...]
+  }
+}
+```
+
+</details>
+
+### ⚙️ Configuration
+
+<details>
+<summary><b>View configuration example</b> (click to expand)</summary>
+
+**Using `bindufy`:**
+
+```python
+from bindu.penguin.bindufy import bindufy
+
+def handler(messages):
+    return [{"role": "assistant", "content": messages[-1]["content"]}]
+
+config = {
+    "author": "you@example.com",
+    "name": "my_agent",
+    "description": "Agent with push notifications",
+    "deployment": {"url": "http://localhost:3773"},
+    "capabilities": {"push_notifications": True},
+    "global_webhook_url": "https://myapp.com/webhooks/global",
+    "global_webhook_token": "global_secret"
+}
+
+bindufy(config, handler)
+```
+
+**Per-Task Webhook Override:**
+
+```python
+"configuration": {
+    "long_running": True,  # Persist webhook in database
+    "push_notification_config": {
+        "id": str(uuid4()),
+        "url": "https://custom-endpoint.com/webhooks",
+        "token": "custom_token_123"
+    }
+}
+```
+
+**Long-Running Tasks:**
+
+For tasks that run longer than typical request timeouts (minutes, hours, or days), set `long_running=True` to persist webhook configurations across server restarts. The webhook config will be stored in the database (`webhook_configs` table).
+
+</details>
+
+📖 **[Complete Documentation](docs/long-running-task-notifications.md)** - Detailed guide with architecture, security, examples, and troubleshooting.
 
 ---
 
