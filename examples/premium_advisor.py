@@ -15,7 +15,6 @@ It demonstrates:
 from bindu.penguin.bindufy import bindufy
 import logging
 
-# Logic that runs ONLY after payment is verified
 def handler(messages: list[dict[str, str]]) -> list[dict[str, str]]:
     """
     This handler provides premium market insights.
@@ -23,7 +22,6 @@ def handler(messages: list[dict[str, str]]) -> list[dict[str, str]]:
     """
     user_input = messages[-1].get("content", "")
     
-    # Premium response logic
     advice = (
         "🔮 **Premium Market Insight** 🔮\n\n"
         "Based on our proprietary deep-chain analysis:\n"
@@ -34,37 +32,31 @@ def handler(messages: list[dict[str, str]]) -> list[dict[str, str]]:
     
     return [{"role": "assistant", "content": advice}]
 
-# Agent Configuration
 config = {
     "author": "premium.advisor@example.com",
     "name": "Oracle_of_Value",
     "description": "I provide high-value market insights. Payment required upfront.",
     
-    # The 'execution_cost' block enables the X402 Middleware
     "execution_cost": {
-        "amount": "0.01",           # The cost of one interaction
-        "token": "USDC",            # The currency
-        "network": "base-sepolia",    # The network (Base Testnet)
+        "amount": "0.01",           # Cost of one interaction
+        "token": "USDC",            # Currency
+        "network": "base-sepolia",    # Network (Base Testnet)
         "pay_to_address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" # Dummy ETH Address
     },
     
-    # Standard deployment config
     "deployment": {
         "url": "http://localhost:3773", 
         "expose": True
     },
     
-    # Use memory storage for this example
     "storage": {"type": "memory"},
     "scheduler": {"type": "memory"},
     
-    # Optional: Enable debug logging to see the middleware in action
     "debug_mode": True
 }
 
 if __name__ == "__main__":
-    # Start the agent server
-    print("🔒 Starting Premium Advisor Agent...")
-    print(f"💰 Cost: {config['execution_cost']['amount']} {config['execution_cost']['token']}")
-    print("🚀 URL: http://localhost:3773")
+    print("Starting Premium Advisor Agent...")
+    print(f"Cost: {config['execution_cost']['amount']} {config['execution_cost']['token']}")
+    print("URL: http://localhost:3773")
     bindufy(config, handler)
