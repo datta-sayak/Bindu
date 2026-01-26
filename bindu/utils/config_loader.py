@@ -300,6 +300,8 @@ def load_config_from_env(config: Dict[str, Any]) -> Dict[str, Any]:
                     )
                     logger.debug("Loaded OPENROUTER_API_KEY from environment")
 
+    if 
+
     return enriched_config
 
 

@@ -467,7 +467,7 @@ class AuthSettings(BaseSettings):
     enabled: bool = False
 
     # Authentication provider
-    provider: str = "auth0"  # Options: auth0, cognito, azure, custom
+    provider: str = "auth0"  # Options: auth0, hydra, cognito, azure, custom
 
     # Auth0 Configuration
     domain: str = ""
@@ -514,6 +514,71 @@ class AuthSettings(BaseSettings):
         "contexts/list": ["agent:read"],
         "tasks/feedback": ["agent:write"],
     }
+
+
+class HydraSettings(BaseSettings):
+    """Ory Hydra OAuth2 authentication configuration settings.
+    
+    Hydra provides OAuth2/OIDC authentication for securing Bindu APIs
+    and enabling agent-to-agent authentication.
+    """
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="HYDRA__",
+        extra="allow",
+    )
+
+    # Enable/disable Hydra authentication
+    enabled: bool = False
+
+    # Hydra API endpoints
+    admin_url: str = "https://hydra-admin.getbindu.com"
+    public_url: str = "https://hydra.getbindu.com"
+
+    # Connection settings
+    timeout: int = 10  # Request timeout in seconds
+    verify_ssl: bool = True  # Verify SSL certificates
+    max_retries: int = 3  # Maximum retry attempts
+
+    # Token cache settings
+    cache_ttl: int = 300  # Token introspection cache TTL (5 minutes)
+    max_cache_size: int = 1000  # Maximum cache entries
+
+    # Auto-registration settings
+    auto_register_agents: bool = True  # Auto-register agents as OAuth clients
+    agent_client_prefix: str = "agent-"  # Prefix for agent client IDs
+
+    # Default OAuth2 scopes for agents
+    default_agent_scopes: list[str] = [
+        "openid",
+        "offline",
+        "agent:read",
+        "agent:write",
+    ]
+
+    # Default grant types for agents
+    default_grant_types: list[str] = [
+        "client_credentials",  # M2M authentication
+        "authorization_code",  # User authentication
+        "refresh_token",  # Token refresh
+    ]
+
+    # Public endpoints (no authentication required)
+    public_endpoints: list[str] = [
+        "/.well-known/agent.json",
+        "/did/resolve",
+        "/agent/info",
+        "/agent.html",
+        "/chat.html",
+        "/storage.html",
+        "/payment-capture",
+        "/js/*",
+        "/css/*",
+        "/docs",
+        "/favicon.ico",
+        "/oauth/*",  # OAuth callback endpoints
+    ]
 
 
 class StorageSettings(BaseSettings):
@@ -768,6 +833,7 @@ class Settings(BaseSettings):
     x402: X402Settings = X402Settings()
     agent: AgentSettings = AgentSettings()
     auth: AuthSettings = AuthSettings()
+    hydra: HydraSettings = HydraSettings()
     storage: StorageSettings = StorageSettings()
     scheduler: SchedulerSettings = SchedulerSettings()
     retry: RetrySettings = RetrySettings()

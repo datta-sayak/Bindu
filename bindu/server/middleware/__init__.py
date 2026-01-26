@@ -17,6 +17,7 @@ MIDDLEWARE STRUCTURE:
 1. AUTHENTICATION MIDDLEWARE (auth/):
    - AuthMiddleware: Abstract base class for authentication
    - Auth0Middleware: Auth0 JWT validation (production-ready)
+   - HydraMiddleware: Ory Hydra OAuth2 with hybrid DID authentication (recommended)
    - CognitoMiddleware: AWS Cognito JWT validation (template)
 
 2. PAYMENT MIDDLEWARE (x402/):
@@ -34,7 +35,7 @@ USAGE PATTERNS:
 from __future__ import annotations as _annotations
 
 # Export authentication implementations from auth/ subdirectory
-from .auth import Auth0Middleware, AuthMiddleware, CognitoMiddleware
+from .auth import Auth0Middleware, AuthMiddleware, CognitoMiddleware, HydraMiddleware
 
 # Export payment middleware from x402/ subdirectory
 from .x402 import X402Middleware
@@ -48,6 +49,7 @@ __all__ = [
     # Authentication implementations
     "Auth0Middleware",
     "CognitoMiddleware",
+    "HydraMiddleware",
     # Payment middleware
     "X402Middleware",
     # Metrics middleware

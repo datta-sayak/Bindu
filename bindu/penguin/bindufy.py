@@ -152,8 +152,6 @@ def bindufy(
             "description": "A helpful assistant",
             "capabilities": {"streaming": True},
             "deployment": {"url": "http://localhost:3773", "protocol_version": "1.0.0"},
-            "storage": {"type": "memory"},
-            "scheduler": {"type": "memory"}
         }
 
         manifest = bindufy(agent, config, my_handler)
@@ -300,6 +298,33 @@ def bindufy(
     logger.debug(
         f"Manifest: {_manifest.name} v{_manifest.version} | {_manifest.kind} | {skill_count} skills | {_manifest.url}"
     )
+
+    # Register agent in Hydra if authentication is enabled with Hydra provider
+    if app_settings.auth.enabled and app_settings.auth.provider == "hydra":
+        logger.info("Registering agent in Hydra OAuth2 server with DID-based authentication...")
+        import asyncio
+        from bindu.auth.hydra_registration import register_agent_in_hydra
+
+        credentials = asyncio.run(
+            register_agent_in_hydra(
+                agent_id=str(agent_id),
+                agent_name=validated_config["name"],
+                agent_url=agent_url,
+                did=did_extension.did,
+                credentials_dir=caller_dir / app_settings.did.pki_dir,
+                did_extension=did_extension,  # Pass DID extension for public key extraction
+            )
+        )
+
+        if credentials:
+            logger.info(
+                f"✅ Agent registered with OAuth client ID: {credentials.client_id}"
+            )
+        else:
+            logger.warning(
+                "⚠️  Agent registration in Hydra failed or was skipped. "
+                "Authentication may not work correctly."
+            )
 
     logger.info(f"Starting deployment for agent: {agent_id}")
 

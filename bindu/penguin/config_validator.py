@@ -94,11 +94,11 @@ class ConfigValidator:
         if isinstance(config.get("capabilities"), dict):
             config["capabilities"] = AgentCapabilities(**config["capabilities"])
 
-        # Process agent_trust if provided - keep as dict for now
-        # TypedDict will be validated when used, not at construction
-        # This allows partial configs during development
+        # TODO: Process agent_trust - IN DEVELOPMENT PHASE
+        # Agent trust validation is currently in development
+        # Keep as dict for now - TypedDict validation will be added in future
         if isinstance(config.get("agent_trust"), dict):
-            pass  # Keep as dict, don't construct TypedDict here
+            pass  # Keep as dict, validation to be implemented
 
         # Process key password - support environment variable and prompt
         if config.get("key_password"):
@@ -177,14 +177,41 @@ class ConfigValidator:
         if not auth_config.get("enabled", False):
             return  # Auth disabled, no further validation needed
 
-        # Required fields when auth is enabled
+        # Get provider (default to hydra for backward compatibility)
+        provider = auth_config.get("provider", "hydra").lower()
+
+        # Validate based on provider
+        if provider == "auth0":
+            cls._validate_auth0_config(auth_config)
+        elif provider == "hydra":
+            cls._validate_hydra_config(auth_config)
+        elif provider in ["cognito", "azure", "custom"]:
+            # Future providers - minimal validation for now
+            pass
+        else:
+            raise ValueError(
+                f"Unknown auth provider: '{provider}'. "
+                f"Supported providers: auth0, hydra, cognito, azure, custom"
+            )
+
+    @classmethod
+    def _validate_auth0_config(cls, auth_config: Dict[str, Any]) -> None:
+        """Validate Auth0-specific configuration.
+
+        Args:
+            auth_config: Auth configuration dictionary
+
+        Raises:
+            ValueError: If Auth0 configuration is invalid
+        """
+        # Required fields for Auth0
         required_auth_fields = ["domain", "audience"]
         missing = [
             field for field in required_auth_fields if not auth_config.get(field)
         ]
         if missing:
             raise ValueError(
-                f"Auth is enabled but missing required fields: {', '.join(missing)}. Required: domain, audience"
+                f"Auth0 is enabled but missing required fields: {', '.join(missing)}. Required: domain, audience"
             )
 
         # Validate domain format
@@ -216,6 +243,36 @@ class ConfigValidator:
             if invalid_algs:
                 raise ValueError(
                     f"Invalid algorithms in auth config: {invalid_algs}. Valid options: {valid_algorithms}"
+                )
+
+    @classmethod
+    def _validate_hydra_config(cls, auth_config: Dict[str, Any]) -> None:
+        """Validate Hydra-specific configuration.
+
+        Args:
+            auth_config: Auth configuration dictionary
+
+        Raises:
+            ValueError: If Hydra configuration is invalid
+        """
+        # For Hydra, most config comes from environment variables or settings
+        # We just validate the provider is set correctly
+        
+        # Optional: validate admin_url and public_url if provided
+        if "admin_url" in auth_config:
+            admin_url = auth_config["admin_url"]
+            if not admin_url.startswith("http://") and not admin_url.startswith("https://"):
+                raise ValueError(
+                    f"Invalid Hydra admin_url: '{admin_url}'. "
+                    f"Expected format: 'https://hydra-admin.getbindu.com'"
+                )
+
+        if "public_url" in auth_config:
+            public_url = auth_config["public_url"]
+            if not public_url.startswith("http://") and not public_url.startswith("https://"):
+                raise ValueError(
+                    f"Invalid Hydra public_url: '{public_url}'. "
+                    f"Expected format: 'https://hydra.getbindu.com'"
                 )
 
     @classmethod

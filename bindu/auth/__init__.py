@@ -6,16 +6,23 @@ This package provides authentication clients and utilities for Ory Hydra and Kra
 from __future__ import annotations as _annotations
 
 from .hydra_client import HydraClient, TokenIntrospectionResult, OAuthClient
-from .kratos_client import KratosClient, OAuthToken, Identity, IdentityTraits
+from .hydra_registration import (
+    AgentCredentials,
+    register_agent_in_hydra,
+    load_agent_credentials,
+    save_agent_credentials,
+    get_agent_token,
+)
 
 __all__ = [
     # Hydra
     "HydraClient",
     "TokenIntrospectionResult",
     "OAuthClient",
-    # Kratos
-    "KratosClient",
-    "OAuthToken",
-    "Identity",
-    "IdentityTraits",
+    # Hydra Registration
+    "AgentCredentials",
+    "register_agent_in_hydra",
+    "load_agent_credentials",
+    "save_agent_credentials",
+    "get_agent_token"
 ]

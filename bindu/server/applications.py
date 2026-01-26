@@ -40,7 +40,7 @@ from bindu.common.models import (
 from bindu.settings import app_settings
 from bindu.utils.retry import execute_with_retry
 
-from .middleware import Auth0Middleware
+from .middleware.auth import Auth0Middleware, HydraMiddleware
 from .scheduler.base import Scheduler
 from .storage.base import Storage
 from .task_manager import TaskManager
@@ -167,6 +167,11 @@ class BinduApplication(Starlette):
             skill_documentation_endpoint,
             skills_list_endpoint,
             metrics_endpoint,
+            create_oauth_client_endpoint,
+            list_oauth_clients_endpoint,
+            get_oauth_client_endpoint,
+            delete_oauth_client_endpoint,
+            get_token_endpoint,
         )
 
         # Add health endpoint import
@@ -219,6 +224,10 @@ class BinduApplication(Starlette):
             with_app=True,
         )
 
+        # OAuth endpoints (if Hydra is enabled)
+        if app_settings.auth.enabled and app_settings.auth.provider == "hydra":
+            self._register_oauth_endpoints()
+
         # Docs/Chat UI endpoint
         self._add_route("/docs", self._docs_endpoint, ["GET"], with_app=False)
 
@@ -259,6 +268,52 @@ class BinduApplication(Starlette):
             payment_status_endpoint,
             ["GET"],
             with_app=True,
+        )
+
+    def _register_oauth_endpoints(self) -> None:
+        """Register OAuth client management endpoints."""
+        from .endpoints import (
+            create_oauth_client_endpoint,
+            delete_oauth_client_endpoint,
+            get_oauth_client_endpoint,
+            get_token_endpoint,
+            list_oauth_clients_endpoint,
+        )
+
+        logger.info("Registering OAuth management endpoints")
+
+        # Admin endpoints for OAuth client management
+        self._add_route(
+            "/admin/oauth/clients",
+            create_oauth_client_endpoint,
+            ["POST"],
+            with_app=False,
+        )
+        self._add_route(
+            "/admin/oauth/clients",
+            list_oauth_clients_endpoint,
+            ["GET"],
+            with_app=False,
+        )
+        self._add_route(
+            "/admin/oauth/clients/{client_id}",
+            get_oauth_client_endpoint,
+            ["GET"],
+            with_app=False,
+        )
+        self._add_route(
+            "/admin/oauth/clients/{client_id}",
+            delete_oauth_client_endpoint,
+            ["DELETE"],
+            with_app=False,
+        )
+
+        # Token endpoint (public)
+        self._add_route(
+            "/oauth/token",
+            get_token_endpoint,
+            ["POST"],
+            with_app=False,
         )
 
     def _add_route(
@@ -596,11 +651,19 @@ class BinduApplication(Starlette):
         if provider == "auth0":
             logger.info("Auth0 authentication enabled")
             return Middleware(Auth0Middleware, auth_config=app_settings.auth)
+        elif provider == "hydra":
+            logger.info("Hydra OAuth2 authentication enabled")
+            # Use Hydra-specific settings if enabled, otherwise fall back to auth settings
+            if app_settings.hydra.enabled:
+                return Middleware(HydraMiddleware, auth_config=app_settings.hydra)
+            else:
+                logger.warning("Hydra provider selected but hydra.enabled=False, using default config")
+                return Middleware(HydraMiddleware, auth_config=app_settings.hydra)
         else:
             logger.error(f"Unknown authentication provider: {provider}")
             raise ValueError(
                 f"Unknown authentication provider: '{provider}'. "
-                f"Supported providers: auth0, cognito, azure, custom"
+                f"Supported providers: auth0, hydra, cognito, azure, custom"
             )
 
     def _setup_payment_session_manager(
