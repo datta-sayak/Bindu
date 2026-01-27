@@ -814,6 +814,75 @@ class NegotiationSettings(BaseSettings):
     embedding_cache_size: int = 1000  # Max task embeddings to cache
 
 
+class VaultSettings(BaseSettings):
+    """HashiCorp Vault configuration for OAuth token storage."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="VAULT__",
+        extra="allow",
+    )
+
+    # Vault connection
+    url: str = Field(
+        default="http://localhost:8200",
+        validation_alias=AliasChoices("VAULT__URL", "VAULT_ADDR"),
+    )
+    token: str = Field(
+        default="",
+        validation_alias=AliasChoices("VAULT__TOKEN", "VAULT_TOKEN"),
+    )
+    
+    # Enable/disable Vault
+    enabled: bool = False
+
+
+class OAuthSettings(BaseSettings):
+    """OAuth provider configuration for user credential management (v0)."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="OAUTH__",
+        extra="allow",
+    )
+
+    # Base URL for OAuth callbacks
+    callback_base_url: str = Field(
+        default="http://localhost:3773",
+        description="Base URL for OAuth callbacks (e.g., https://your-domain.com)",
+    )
+
+    # Notion OAuth
+    notion_client_id: str = Field(
+        default="",
+        validation_alias=AliasChoices("OAUTH__NOTION_CLIENT_ID", "NOTION_CLIENT_ID"),
+    )
+    notion_client_secret: str = Field(
+        default="",
+        validation_alias=AliasChoices("OAUTH__NOTION_CLIENT_SECRET", "NOTION_CLIENT_SECRET"),
+    )
+
+    # Google OAuth (for Gmail)
+    google_client_id: str = Field(
+        default="",
+        validation_alias=AliasChoices("OAUTH__GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_ID"),
+    )
+    google_client_secret: str = Field(
+        default="",
+        validation_alias=AliasChoices("OAUTH__GOOGLE_CLIENT_SECRET", "GOOGLE_CLIENT_SECRET"),
+    )
+
+    # GitHub OAuth
+    github_client_id: str = Field(
+        default="",
+        validation_alias=AliasChoices("OAUTH__GITHUB_CLIENT_ID", "GITHUB_CLIENT_ID"),
+    )
+    github_client_secret: str = Field(
+        default="",
+        validation_alias=AliasChoices("OAUTH__GITHUB_CLIENT_SECRET", "GITHUB_CLIENT_SECRET"),
+    )
+
+
 class SentrySettings(BaseSettings):
     """Sentry error tracking and performance monitoring configuration.
 
@@ -914,6 +983,8 @@ class Settings(BaseSettings):
     agent: AgentSettings = AgentSettings()
     auth: AuthSettings = AuthSettings()
     hydra: HydraSettings = HydraSettings()
+    vault: VaultSettings = VaultSettings()
+    oauth: OAuthSettings = OAuthSettings()
     storage: StorageSettings = StorageSettings()
     scheduler: SchedulerSettings = SchedulerSettings()
     retry: RetrySettings = RetrySettings()

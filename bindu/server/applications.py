@@ -234,6 +234,49 @@ class BinduApplication(Starlette):
         if self._x402_ext:
             self._register_payment_endpoints()
 
+        # OAuth user endpoints (if Vault is enabled)
+        if app_settings.vault.enabled:
+            self._register_oauth_user_endpoints()
+
+    def _register_oauth_user_endpoints(self) -> None:
+        """Register OAuth user credential management endpoints."""
+        from .endpoints import (
+            connect_oauth_provider,
+            disconnect_oauth_provider,
+            list_oauth_providers,
+            oauth_callback,
+        )
+
+        logger.info("Registering OAuth user credential endpoints")
+
+        # OAuth connection flow
+        self._add_route(
+            "/oauth/connect/{provider}",
+            connect_oauth_provider,
+            ["GET"],
+            with_app=False,
+        )
+        self._add_route(
+            "/oauth/callback/{provider}",
+            oauth_callback,
+            ["GET"],
+            with_app=False,
+        )
+        
+        # OAuth provider management
+        self._add_route(
+            "/oauth/providers",
+            list_oauth_providers,
+            ["GET"],
+            with_app=False,
+        )
+        self._add_route(
+            "/oauth/providers/{provider}",
+            disconnect_oauth_provider,
+            ["DELETE"],
+            with_app=False,
+        )
+
     def _register_payment_endpoints(self) -> None:
         """Register payment session endpoints."""
         from .endpoints import (

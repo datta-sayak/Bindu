@@ -24,6 +24,12 @@ from .skills import (
     skills_list_endpoint,
 )
 from .metrics import metrics_endpoint
+from .oauth_user import (
+    connect_oauth_provider,
+    disconnect_oauth_provider,
+    list_oauth_providers,
+    oauth_callback,
+)
 
 __all__ = [
     # A2A Protocol
@@ -45,4 +51,9 @@ __all__ = [
     "skill_documentation_endpoint",
     # Metrics
     "metrics_endpoint",
+    # OAuth User Endpoints
+    "connect_oauth_provider",
+    "oauth_callback",
+    "list_oauth_providers",
+    "disconnect_oauth_provider",
 ]
