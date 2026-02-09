@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 from bindu.penguin.bindufy import bindufy
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+from agno.models.openrouter import OpenRouter
 from notion_client import Client
 
 load_dotenv()
@@ -68,10 +68,9 @@ def search_notion(query: str):
 # -----------------------------
 agent = Agent(
     instructions="You are a Notion assistant. Use tools to create and search Notion pages.",
-    model=OpenAIChat(
-        id="gpt-4o",
+    model=OpenRouter(
+        id="openai/gpt-oss-120b",
         api_key=OPENROUTER_API_KEY,
-        base_url="https://api.openrouter.ai/v1",  # Important: points to OpenRouter
     ),
     tools=[create_notion_page, search_notion],
 )
