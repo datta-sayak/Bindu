@@ -5,7 +5,7 @@ author: premium.advisor@example.com
 description: |
   Premium market insights and financial analysis agent that provides
   high-value investment recommendations and market analysis.
-  
+
   Features:
   - Proprietary deep-chain analysis
   - Market trend identification
@@ -13,11 +13,11 @@ description: |
   - Developer activity analysis
   - Project audit verification
   - Investment strategy guidance
-  
+
   Provides premium insights that require payment upfront through X402 protocol.
   All recommendations are based on thorough analysis of market conditions,
   project fundamentals, and developer activity.
-  
+
   Payment Required: 0.01 USDC per interaction
 tags:
   - finance

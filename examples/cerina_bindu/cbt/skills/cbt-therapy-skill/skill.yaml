@@ -5,19 +5,19 @@ author: bindu.builder@getbindu.com
 description: |
   Cognitive Behavioral Therapy (CBT) skill that provides personalized therapeutic exercises
   and protocols based on user concerns and mental health needs.
-  
+
   Features:
   - Multi-agent CBT protocol generation
   - Clinical safety validation
   - Therapeutic quality assessment
   - Personalized exercise creation
   - Evidence-based interventions
-  
+
   Uses a sophisticated multi-agent workflow with:
   - Drafter Agent: Creates initial CBT exercise drafts
   - Safety Guardian: Validates clinical safety and ethics
   - Clinical Critic: Ensures therapeutic quality and effectiveness
-  
+
   All protocols are reviewed for safety and clinical appropriateness
   before being provided to users.
 tags:

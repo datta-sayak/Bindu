@@ -5,7 +5,7 @@ author: gaurikasethi88@gmail.com
 description: |
   Advanced text summarization agent that creates concise, coherent summaries
   of any input text while preserving key information and context.
-  
+
   Features:
   - Intelligent content condensation
   - Key point extraction and preservation
@@ -13,17 +13,17 @@ description: |
   - Coherent narrative flow
   - Multi-format text support
   - Rapid processing with OpenRouter integration
-  
+
   Capabilities:
   - Long-form text summarization
   - Article and document condensation
   - Key point extraction
   - Context preservation
   - Coherent summary generation
-  
+
   Uses OpenRouter's `openai/gpt-oss-120b` model for high-quality
   summarization with excellent comprehension and generation capabilities.
-  
+
   Perfect for quickly understanding lengthy documents, articles,
   reports, or any text content that needs to be condensed efficiently.
 tags:

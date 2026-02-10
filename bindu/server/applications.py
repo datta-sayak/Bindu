@@ -290,7 +290,6 @@ class BinduApplication(Starlette):
         """Wrap endpoint that requires app instance."""
         return await endpoint(self, request)
 
-
     def _create_default_lifespan(
         self,
         manifest: AgentManifest | None,
@@ -527,7 +526,7 @@ class BinduApplication(Starlette):
         # Add CORS middleware if origins are specified
         if cors_origins:
             from starlette.middleware.cors import CORSMiddleware
-            
+
             logger.info(f"CORS middleware enabled for origins: {cors_origins}")
             cors_middleware = Middleware(
                 CORSMiddleware,

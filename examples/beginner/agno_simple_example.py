@@ -69,3 +69,4 @@ if __name__ == "__main__":
     import os
     os.environ["AUTH_ENABLED"] = "false"
     bindufy(config, handler)
+

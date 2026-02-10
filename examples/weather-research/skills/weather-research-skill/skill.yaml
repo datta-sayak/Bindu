@@ -5,7 +5,7 @@ author: bindu.builder@getbindu.com
 description: |
   Advanced weather research skill that provides comprehensive weather information,
   forecasts, and meteorological analysis for any location worldwide.
-  
+
   Features:
   - Real-time weather data via search
   - Multi-day forecasting with confidence levels
@@ -13,7 +13,7 @@ description: |
   - Travel recommendations based on weather
   - Severe weather alerts
   - Climate information and trends
-  
+
   Uses DuckDuckGo search to find current weather conditions
   and provides detailed analysis with both metric and imperial units.
 tags:

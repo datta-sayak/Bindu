@@ -37,18 +37,18 @@
 
 	let conversations = $state(data.conversations);
 	let agentContextsLoaded = $state(false);
-	
+
 	$effect(() => {
 		data.conversations && untrack(() => (conversations = data.conversations));
 	});
-	
+
 	// Load agent contexts client-side
 	$effect(() => {
 		if (browser && !agentContextsLoaded) {
 			loadAgentContexts();
 		}
 	});
-	
+
 	async function loadAgentContexts() {
 		try {
 			console.log('Loading agent contexts...');
@@ -60,19 +60,19 @@
 				console.log('No OAuth token found, continuing without auth (auth is optional)');
 				agentAPI.setAuthToken(null);
 			}
-			
+
 			console.log('Fetching contexts...');
 			const contexts = await agentAPI.listContexts(50);
 			console.log('Contexts received:', contexts);
 			console.log('Number of contexts:', contexts.length);
-			
+
 			const agentConvs = [];
 			for (let i = 0; i < contexts.length; i++) {
 				const ctx = contexts[i];
 				console.log(`Processing context ${i + 1}/${contexts.length}:`, ctx);
 				let title = 'New Chat';
 				let timestamp = new Date();
-				
+
 				if (ctx.task_ids && ctx.task_ids.length > 0) {
 					console.log(`  Context has ${ctx.task_ids.length} tasks, fetching first task:`, ctx.task_ids[0]);
 					try {
@@ -80,7 +80,7 @@
 						console.log('  Task received:', task);
 						const history = task.history || [];
 						console.log('  Task history length:', history.length);
-						
+
 						for (const msg of history) {
 							if (msg.role === 'user') {
 								const parts = msg.parts || [];
@@ -95,7 +95,7 @@
 								}
 							}
 						}
-						
+
 						if (task.status && task.status.timestamp) {
 							timestamp = new Date(task.status.timestamp);
 						}
@@ -105,9 +105,9 @@
 				} else {
 					console.log('  No tasks in this context');
 				}
-				
+
 				console.log(`  Final title for context: "${title}"`);
-				
+
 				if (ctx.context_id) {
 					agentConvs.push({
 						id: ctx.context_id,
@@ -117,9 +117,9 @@
 					});
 				}
 			}
-			
+
 			console.log('Agent conversations to add:', agentConvs);
-			
+
 			// Merge and sort
 			conversations = [...data.conversations, ...agentConvs].sort(
 				(a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()

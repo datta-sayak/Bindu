@@ -14,9 +14,9 @@
 	import { loading } from "$lib/stores/loading.js";
 	import { loadAttachmentsFromUrls } from "$lib/utils/loadAttachmentsFromUrls";
 	import { requireAuthUser } from "$lib/utils/auth";
-	import { 
-		messages as agentMessages, 
-		isThinking, 
+	import {
+		messages as agentMessages,
+		isThinking,
 		sendMessage as sendAgentMessage,
 		contextId,
 		setReplyTo,
@@ -30,11 +30,11 @@
 	let hasModels = $derived(Boolean(data.models?.length));
 	let files: File[] = $state([]);
 	let draft = $state("");
-	
+
 	// Check if we're in agent mode (have an active context OR messages)
 	// Keep agent mode active if we have messages, even if context temporarily clears
 	let isAgentMode = $derived($contextId !== null || $agentMessages.length > 0);
-	
+
 	// Convert agent messages to display format
 	let displayMessages = $derived($agentMessages.map(msg => ({
 		id: msg.id,
@@ -52,7 +52,7 @@
 			}
 		})
 	} as Message)));
-	
+
 	// Debug logging
 	$effect(() => {
 		console.log('=== HOME PAGE STATE ===');
@@ -172,7 +172,7 @@
 	});
 
 	let currentModel = $derived(data.models[0]);
-	
+
 	async function handleMessage(message: string) {
 		if (isAgentMode) {
 			await sendAgentMessage(message);
@@ -180,11 +180,11 @@
 			await createConversation(message);
 		}
 	}
-	
+
 	function handleReplyToTask(taskId: string) {
 		setReplyTo(taskId);
 	}
-	
+
 	function handleClearReply() {
 		clearReplyTo();
 	}

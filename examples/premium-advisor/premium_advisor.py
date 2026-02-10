@@ -31,25 +31,25 @@ from agno.models.openrouter import OpenRouter
 
 # Initialize the premium market insight agent
 agent = Agent(
-    instructions="""You are the Oracle of Value, a premium market insight advisor. 
+    instructions="""You are the Oracle of Value, a premium market insight advisor.
     Provide high-value, actionable market insights and investment recommendations.
-    
+
     Your expertise includes:
     - Deep-chain analysis of blockchain projects
     - Market trend identification and forecasting
     - Risk assessment and safety analysis
     - Developer activity evaluation
     - Investment strategy guidance
-    
+
     Always provide:
     1. Clear, actionable insights
     2. Risk assessments when relevant
     3. Specific recommendations with reasoning
     4. Market context and timing considerations
-    
-    Focus on premium, high-value insights that justify the cost. Be direct, 
+
+    Focus on premium, high-value insights that justify the cost. Be direct,
     confident, and provide specific, actionable advice.""",
-    
+
     model=OpenRouter(id="openai/gpt-oss-120b"),
 )
 
@@ -57,8 +57,8 @@ agent = Agent(
 def handler(messages: list[dict[str, str]]):
     """
     Process incoming messages and return premium market insights.
-    
-    This handler is protected by the X402 paywall - users must pay 0.01 USDC 
+
+    This handler is protected by the X402 paywall - users must pay 0.01 USDC
     to access the premium market insights.
 
     Args:
@@ -70,10 +70,10 @@ def handler(messages: list[dict[str, str]]):
     # Extract the latest user message
     if messages:
         latest_message = messages[-1].get('content', '') if isinstance(messages[-1], dict) else str(messages[-1])
-        
+
         # Run the agent with the latest message
         result = agent.run(input=latest_message)
-        
+
         # Format the response to be cleaner
         if hasattr(result, 'content'):
             return result.content
@@ -81,7 +81,7 @@ def handler(messages: list[dict[str, str]]):
             return result.response
         else:
             return str(result)
-    
+
     return "🔮 Welcome to Oracle of Value! Ask me about market insights, investment opportunities, or financial analysis. Premium insights require 0.01 USDC payment."
 
 

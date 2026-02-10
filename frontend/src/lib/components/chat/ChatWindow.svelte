@@ -178,7 +178,7 @@
 			return undefined;
 		})()
 	);
-	
+
 	let lastIsError = $derived(
 		!loading &&
 			(streamingAssistantMessage?.updates?.findIndex(
@@ -205,7 +205,7 @@
 		}
 		return null;
 	});
-	
+
 	let sources = $derived(
 		files?.map<Promise<MessageFile>>((file) =>
 			file2base64(file).then((value) => ({
@@ -276,7 +276,7 @@
 	let isFileUploadEnabled = $derived(activeMimeTypes.length > 0);
 	let focused = $state(false);
 
-	
+
 	async function handleRecordingConfirm(audioBlob: Blob) {
 		isRecording = false;
 		isTranscribing = true;

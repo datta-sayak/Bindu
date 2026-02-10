@@ -60,7 +60,7 @@
 
 	function handleNewChatClick(e: MouseEvent) {
 		isAborted.set(true);
-		
+
 		// Clear agent context to start fresh
 		createNewContext();
 		console.log('New Chat clicked - context cleared');
@@ -226,4 +226,3 @@
 		</button>
 	</span>
 </div>
-

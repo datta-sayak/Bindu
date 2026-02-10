@@ -5,7 +5,7 @@ author: nivasm2823@gmail.com
 description: |
   Advanced multi-agent intelligence system that orchestrates specialized AI agents
   for comprehensive research, analysis, and content generation.
-  
+
   Features:
   - Multi-agent orchestration with 6 specialized agents
   - Deep research capabilities across multiple domains
@@ -13,7 +13,7 @@ description: |
   - Quality assurance through critic and reflection agents
   - Structured summarization and content refinement
   - Collaborative intelligence emergence
-  
+
   Agent Swarm Architecture:
   - Planner Agent: Breaks down complex tasks into structured steps
   - Researcher Agent: Conducts deep research and information gathering
@@ -21,7 +21,7 @@ description: |
   - Critic Agent: Provides quality assessment and content improvement
   - Reflection Agent: Evaluates output quality and suggests improvements
   - Orchestrator: Coordinates all agents and manages workflow
-  
+
   This system demonstrates the future of AI - collaborative agent societies
   working together to produce high-quality, comprehensive outputs.
 tags:

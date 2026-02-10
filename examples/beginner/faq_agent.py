@@ -20,11 +20,11 @@ agent = Agent(
     name="Bindu Docs Agent",
     instructions="""
     You are an expert assistant for Bindu (GetBindu).
-    
+
     TASK:
     1. Search the Bindu documentation (docs.getbindu.com) for the user's query.
     2. Answer the question clearly.
-    
+
     FORMATTING RULES:
     - Return your answer in CLEAN Markdown.
     - Use '##' for main headers.

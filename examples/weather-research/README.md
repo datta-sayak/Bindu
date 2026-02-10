@@ -57,7 +57,7 @@ messages = [{"role": "user", "content": "What's the weather like in Tokyo?"}]
 
 ### Supported Query Types
 - **Current Weather**: "weather in [location]", "current weather [location]"
-- **Forecasts**: "weather forecast [location]", "5-day forecast [location]" 
+- **Forecasts**: "weather forecast [location]", "5-day forecast [location]"
 - **General**: "What's the weather like in [location]?"
 
 ### Response Format
@@ -75,7 +75,7 @@ The agent provides clean, synthesized weather information without showing raw se
 ```python
 config = {
     "author": "bindu.builder@getbindu.com",
-    "name": "weather_research_agent", 
+    "name": "weather_research_agent",
     "description": "Research agent that finds current weather and forecasts for any city worldwide",
     "deployment": {"url": "http://localhost:3773", "expose": True}
 }
@@ -118,21 +118,21 @@ The agent uses:
 
 #### API Key Not Found
 **Error**: `OPENROUTER_API_KEY not set`
-**Solution**: 
+**Solution**:
 1. Copy your OpenRouter API key
 2. Add to `.env` file: `OPENROUTER_API_KEY=your_key_here`
 3. Restart the agent
 
 #### Module Not Found
 **Error**: `ModuleNotFoundError: No module named 'bindu'`
-**Solution**: 
+**Solution**:
 1. Make sure you're running from the Bindu root directory
 2. Run `uv sync` to install dependencies
 3. Use: `uv run python examples/weather-research/weather_research_agent.py`
 
 #### Environment Loading Issues
 **Error**: Environment variables not loading
-**Solution**: 
+**Solution**:
 1. Ensure `.env` file exists in `examples/weather-research/` directory
 2. Check that the API key is correctly formatted
 
@@ -149,7 +149,7 @@ When running, the agent exposes these endpoints:
 {
   "messages": [
     {
-      "role": "user", 
+      "role": "user",
       "content": "What's the weather like in Tokyo?"
     }
   ]

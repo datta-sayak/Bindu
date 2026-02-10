@@ -58,10 +58,10 @@ def handler(messages: list[dict[str, str]]):
     # Extract the latest user message
     if messages:
         latest_message = messages[-1].get('content', '') if isinstance(messages[-1], dict) else str(messages[-1])
-        
+
         # Run the agent with the latest message
         result = agent.run(input=latest_message)
-        
+
         # Format the response to be cleaner
         if hasattr(result, 'content'):
             return result.content
@@ -69,7 +69,7 @@ def handler(messages: list[dict[str, str]]):
             return result.response
         else:
             return str(result)
-    
+
     return "Please provide a location for weather information."
 
 # Bindu-fy the agent - converts it to a discoverable, interoperable Bindu agent

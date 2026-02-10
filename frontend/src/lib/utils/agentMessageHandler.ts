@@ -23,7 +23,7 @@ export async function submitTaskFeedback(
 		'Content-Type': 'application/json',
 		...getPaymentHeaders()
 	};
-	
+
 	if (token) {
 		headers['Authorization'] = `Bearer ${token}`;
 	}
@@ -53,7 +53,7 @@ export async function submitTaskFeedback(
 	}
 
 	const result = await response.json();
-	
+
 	if (result.error) {
 		throw new Error(result.error.message || 'Feedback submission error');
 	}
@@ -150,7 +150,7 @@ function extractTextFromTask(task: AgentTask): string {
 /**
  * Send message to agent and poll for completion
  * Returns an async generator that yields MessageUpdate objects
- * 
+ *
  * @param message - The message text to send
  * @param contextId - The context ID for the conversation
  * @param abortSignal - Signal to abort the request
@@ -171,14 +171,14 @@ export async function* sendAgentMessage(
 		'Content-Type': 'application/json',
 		...getPaymentHeaders()
 	};
-	
+
 	if (token) {
 		headers['Authorization'] = `Bearer ${token}`;
 	}
 
 	// Generate IDs
 	const messageId = generateId();
-	
+
 	// Task ID logic based on A2A protocol:
 	// - Explicit reply: ALWAYS create new task with referenceTaskIds
 	// - Non-terminal states (input-required, auth-required): REUSE task ID
@@ -186,15 +186,15 @@ export async function* sendAgentMessage(
 	// - No current task: CREATE new task
 	let taskId: string;
 	const referenceTaskIds: string[] = [];
-	
+
 	if (replyToTaskId) {
 		// Explicit reply to a specific task - always create new task
 		taskId = generateId();
 		referenceTaskIds.push(replyToTaskId);
 	} else {
-		const isNonTerminalState = taskState && 
+		const isNonTerminalState = taskState &&
 			(taskState === 'input-required' || taskState === 'auth-required');
-		
+
 		if (isNonTerminalState && currentTaskId) {
 			// Continue same task for non-terminal states
 			taskId = currentTaskId;
@@ -207,9 +207,9 @@ export async function* sendAgentMessage(
 			}
 		}
 	}
-	
+
 	// Pad contextId to 32 chars if it's a MongoDB ObjectId (24 chars)
-	const newContextId = contextId 
+	const newContextId = contextId
 		? (contextId.length === 24 ? contextId.padEnd(32, '0') : contextId)
 		: generateId();
 
@@ -250,7 +250,7 @@ export async function* sendAgentMessage(
 		// Handle 402 Payment Required
 		if (response.status === 402) {
 			console.log('Payment required, starting payment flow...');
-			
+
 			const paymentSuccess = await handlePaymentRequired((message) => {
 				// Emit status updates during payment
 				console.log('Payment status:', message);
@@ -258,13 +258,13 @@ export async function* sendAgentMessage(
 
 			if (paymentSuccess) {
 				console.log('Payment completed, retrying request with payment token...');
-				
+
 				// Retry with payment token
 				const retryHeaders: Record<string, string> = {
 					'Content-Type': 'application/json',
 					...getPaymentHeaders()
 				};
-				
+
 				if (token) {
 					retryHeaders['Authorization'] = `Bearer ${token}`;
 				}
@@ -277,15 +277,15 @@ export async function* sendAgentMessage(
 				});
 
 				console.log('Retry response status:', response.status);
-				
+
 				if (!response.ok) {
 					const errorText = await response.text().catch(() => 'Unknown error');
 					console.error('Retry failed:', response.status, errorText);
 					throw new Error(`Agent request failed after payment: ${response.status} - ${errorText}`);
 				}
-				
+
 				console.log('Retry successful, continuing with normal flow...');
-				
+
 				// Update headers to include payment token for subsequent polling requests
 				headers['X-PAYMENT'] = getPaymentHeaders()['X-PAYMENT'] || '';
 			} else {
@@ -305,7 +305,7 @@ export async function* sendAgentMessage(
 			console.error('Response text:', text);
 			throw new Error('Failed to parse response');
 		}
-		
+
 		if (result.error) {
 			console.error('Response contains error:', result.error);
 			throw new Error(result.error.message || 'Agent error');
@@ -341,7 +341,7 @@ export async function* sendAgentMessage(
 			if (attempt > 0) {
 				await new Promise(resolve => setTimeout(resolve, pollInterval));
 			}
-			
+
 			// Poll task status
 			const statusResponse = await fetch(`${AGENT_BASE_URL}/`, {
 				method: 'POST',
@@ -354,13 +354,13 @@ export async function* sendAgentMessage(
 				}),
 				signal: abortSignal
 			});
-			
+
 			if (!statusResponse.ok) {
 				continue; // Retry on error
 			}
 
 			const statusResult = await statusResponse.json();
-			
+
 			if (statusResult.error) {
 				throw new Error(statusResult.error.message || 'Task status error');
 			}
@@ -380,27 +380,27 @@ export async function* sendAgentMessage(
 			// Check if task is complete or needs input
 			if (taskState === 'completed' || taskState === 'input-required') {
 				const text = extractTextFromTask(currentTask);
-				
+
 				// Yield final answer directly (no stream tokens needed)
 				// The FinalAnswer will set message.content which the UI will render
-				yield { 
-					type: MessageUpdateType.FinalAnswer, 
-					text: text || '', 
-					interrupted: false 
+				yield {
+					type: MessageUpdateType.FinalAnswer,
+					text: text || '',
+					interrupted: false
 				};
-				
+
 				// Yield finished status to signal completion
 				yield {
 					type: MessageUpdateType.Status,
 					status: MessageUpdateStatus.Finished
 				};
-				
+
 				// Clear payment token only when task completes (not for input-required)
 				// This ensures new tasks require new payment, but continuing same task reuses token
 				if (taskState === 'completed') {
 					clearPaymentToken();
 				}
-				
+
 				// Exit immediately - stop polling
 				return;
 			} else if (taskState === 'failed') {
