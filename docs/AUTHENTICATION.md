@@ -2,6 +2,29 @@
 
 Bindu uses **Ory Hydra** as its authentication backend for production deployments. Authentication is optional - you can run agents without it for development and testing.
 
+## How It Works
+
+```mermaid
+sequenceDiagram
+    participant Agent
+    participant Hydra
+    participant API
+
+    Note over Agent,Hydra: 1. Registration (bindufy)
+    Agent->>Hydra: Register OAuth client<br/>(DID as client_id)
+    Hydra-->>Agent: client_secret
+
+    Note over Agent,Hydra: 2. Get Token
+    Agent->>Hydra: POST /oauth2/token<br/>(client_credentials grant)
+    Hydra-->>Agent: access_token
+
+    Note over Agent,API: 3. API Request
+    Agent->>API: Request + Authorization: Bearer token
+    API->>Hydra: Introspect token
+    Hydra-->>API: Token valid/invalid
+    API-->>Agent: Response
+```
+
 ## Configuration
 
 ### Environment Variables
