@@ -12,7 +12,7 @@ sequenceDiagram
     participant ObservabilityPlatform (Langfuse/Arize)
 
     Note over Agent: Agent Startup (bindufy)
-    
+
     rect rgb(240, 248, 255)
         Note over Agent,OTEL: OpenTelemetry Setup
         Agent->>Agent: Check TELEMETRY_ENABLED

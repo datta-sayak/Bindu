@@ -3,7 +3,7 @@
 Bindu provides built-in tunneling to expose your local agent to the internet during development and testing. This allows you to share your agent with others or test webhooks without deploying to a server.
 
 > **⚠️ WARNING: For Local Development Only**
-> 
+>
 > Tunneling is designed for **local development and testing only**. Do NOT use tunneling in production environments. For production deployments, use proper hosting with SSL certificates and security configurations.
 
 ## Quick Start

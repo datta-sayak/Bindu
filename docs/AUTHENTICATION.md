@@ -120,4 +120,3 @@ curl --location 'http://localhost:3773/' \
     "id": 1
 }'
 ```
-

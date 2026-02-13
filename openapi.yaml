@@ -45,11 +45,11 @@ paths:
       description: |
         Obtain an OAuth2 access token using client credentials grant.
         The client_id is the agent's DID and client_secret is obtained from oauth_credentials.json.
-        
+
         **Credentials location:** `.bindu/oauth_credentials.json`
-        
+
         **Grant type:** client_credentials
-        
+
         **Scopes:**
         - openid: OpenID Connect scope
         - offline: Offline access
@@ -83,7 +83,7 @@ paths:
                 client_secret:
                   type: string
                   description: Client secret (from oauth_credentials.json)
-                  example: "45zleygc46gaAnLOkzMvsQ0Ui5D9fSH8FQQFCD0DwP8"
+                  example: "<client-secret-value>"
                 scope:
                   type: string
                   description: Space-separated list of scopes
@@ -120,13 +120,13 @@ paths:
       summary: JSON-RPC 2.0 Endpoint
       description: |
         Main JSON-RPC 2.0 endpoint for agent communication.
-        
+
         All requests follow JSON-RPC 2.0 format with:
         - `jsonrpc`: "2.0"
         - `method`: The method name (e.g., "message/send", "tasks/get")
         - `params`: Method-specific parameters
         - `id`: Request identifier
-        
+
         **Available Methods:**
         - `message/send` - Send messages to agent
         - `tasks/get` - Get task status
@@ -521,7 +521,7 @@ paths:
                   - id: "did:bindu:your_email_at_example_com:research_agent:aa8bf76b1d1947a493167220ce8dd7a0#key-1"
                     type: "Ed25519VerificationKey2020"
                     controller: "did:bindu:your_email_at_example_com:research_agent:aa8bf76b1d1947a493167220ce8dd7a0"
-                    publicKeyBase58: "42ob7CWrucLUpyCLjafmtHEYVTrJTJmKqkLCuMohKn6y"
+                    publicKeyBase58: "<base58-encoded-public-key>"
         '400':
           description: Invalid DID format
           content:
@@ -1007,7 +1007,7 @@ paths:
                 http_requests_total{method="GET",endpoint="/.well-known/agent.json",status="200"} 1
                 http_requests_total{method="POST",endpoint="/",status="200"} 6
                 http_requests_total{method="POST",endpoint="/agent/negotiation",status="200"} 2
-                
+
                 # HELP http_request_duration_seconds HTTP request latency
                 # TYPE http_request_duration_seconds histogram
                 http_request_duration_seconds_bucket{le="0.1"} 1
@@ -1016,21 +1016,21 @@ paths:
                 http_request_duration_seconds_bucket{le="+Inf"} 9
                 http_request_duration_seconds_sum 20.4
                 http_request_duration_seconds_count 9
-                
+
                 # HELP agent_tasks_active Currently active tasks
                 # TYPE agent_tasks_active gauge
                 agent_tasks_active{agent_id="did:bindu:your_email_at_example_com:research_agent:aa8bf76b1d1947a493167220ce8dd7a0"} 0
-                
+
                 # HELP http_request_size_bytes HTTP request body size
                 # TYPE http_request_size_bytes summary
                 http_request_size_bytes_sum 1868
                 http_request_size_bytes_count 8
-                
+
                 # HELP http_response_size_bytes HTTP response body size
                 # TYPE http_response_size_bytes summary
                 http_response_size_bytes_sum 2637
                 http_response_size_bytes_count 9
-                
+
                 # HELP http_requests_in_flight Current number of HTTP requests being processed
                 # TYPE http_requests_in_flight gauge
                 http_requests_in_flight 0

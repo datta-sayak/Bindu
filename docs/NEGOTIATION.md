@@ -254,7 +254,7 @@ import httpx
 async def find_best_agent(task_summary, agent_urls):
     """Query agents and select the best one."""
     responses = []
-    
+
     async with httpx.AsyncClient() as client:
         for url in agent_urls:
             try:
@@ -269,11 +269,11 @@ async def find_best_agent(task_summary, agent_urls):
                     })
             except Exception as e:
                 print(f"Agent {url} failed: {e}")
-    
+
     # Select highest scoring agent
     if not responses:
         return None
-    
+
     best = max(responses, key=lambda r: r["data"]["score"])
     return best["url"]
 

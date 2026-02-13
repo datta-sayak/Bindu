@@ -27,7 +27,7 @@ sequenceDiagram
         Client->>TaskManager: POST / (message/send)
         TaskManager->>Storage: Save task (state: pending)
         TaskManager->>Scheduler: run_task(params)
-        
+
         alt Redis Scheduler
             Scheduler->>Queue: RPUSH bindu:tasks
             Note over Queue: Task queued in Redis
@@ -39,7 +39,7 @@ sequenceDiagram
 
     rect rgb(255, 248, 240)
         Note over Worker,Storage: 2. Task Processing
-        
+
         alt Redis Scheduler
             Worker->>Queue: BLPOP bindu:tasks (blocking)
             Queue-->>Worker: Task operation
@@ -47,7 +47,7 @@ sequenceDiagram
             Worker->>Queue: Receive from stream
             Queue-->>Worker: Task operation
         end
-        
+
         Worker->>Storage: Update state: working
         Worker->>Worker: Execute agent handler
         Worker->>Storage: Update state: completed/failed
@@ -84,7 +84,7 @@ REDIS_URL=rediss://default:<password>@<host>:<port>
 
 **With password:**
 ```
-rediss://default:password@hostname:port
+rediss://default:****@hostname:port
 ```
 
 **Without password (local development):**
@@ -99,7 +99,7 @@ redis://localhost:6379/0
 
 **Example:**
 ```bash
-REDIS_URL=rediss://default:mypassword@redis-12345.upstash.io:6379
+REDIS_URL=rediss://default:****@redis-12345.upstash.io:6379
 ```
 
 ### Agent Configuration
@@ -159,7 +159,7 @@ export REDIS_URL="redis://localhost:6379"
 3. Copy the connection string (TLS enabled)
 4. Set environment variable:
    ```bash
-   export REDIS_URL="rediss://default:xxx@xxx.upstash.io:6379"
+   export REDIS_URL="rediss://default:****@xxx.upstash.io:6379"
    ```
 
 ## Switching Between Scheduler Types

@@ -15,13 +15,13 @@ sequenceDiagram
     participant Alembic
 
     Note over Storage,Alembic: Startup & Initialization
-    
+
     rect rgb(240, 248, 255)
         Note over Storage,PostgreSQL: 1. Connection Setup
         Storage->>PostgreSQL: Create async engine<br/>(connection pool)
         Storage->>PostgreSQL: Test connection (ping)
         PostgreSQL-->>Storage: Connected
-        
+
         alt Auto-migrations enabled
             Storage->>Alembic: Run pending migrations
             Alembic->>PostgreSQL: CREATE/ALTER tables
@@ -124,12 +124,12 @@ DATABASE_URL=postgresql+asyncpg://<user>:<password>@<host>:<port>/<database>?ssl
 
 **Connection String Format:**
 ```
-postgresql+asyncpg://username:password@hostname:port/database?ssl=require
+postgresql+asyncpg://<username>:<password>@<hostname>:<port>/<database>?ssl=require
 ```
 
 **Example:**
 ```bash
-DATABASE_URL=postgresql+asyncpg://bindu_user:mypassword@localhost:5432/bindu_db?ssl=require
+DATABASE_URL=postgresql+asyncpg://bindu_user:<password>@localhost:5432/bindu_db?ssl=require
 ```
 
 ### Agent Configuration
@@ -165,7 +165,7 @@ docker run -d \
   postgres:15-alpine
 
 # Set environment variable
-export DATABASE_URL="postgresql+asyncpg://bindu_user:bindu_password@localhost:5432/bindu_db"
+export DATABASE_URL="postgresql+asyncpg://bindu_user:<password>@localhost:5432/bindu_db"
 ```
 
 #### Using Local PostgreSQL
@@ -184,13 +184,13 @@ export DATABASE_URL="postgresql+asyncpg://bindu_user:bindu_password@localhost:54
 2. Create database and user:
    ```sql
    CREATE DATABASE bindu_db;
-   CREATE USER bindu_user WITH PASSWORD 'bindu_password';
+   CREATE USER bindu_user WITH ENCRYPTED PASSWORD '<your_password>';
    GRANT ALL PRIVILEGES ON DATABASE bindu_db TO bindu_user;
    ```
 
 3. Set environment variable:
    ```bash
-   export DATABASE_URL="postgresql+asyncpg://bindu_user:bindu_password@localhost:5432/bindu_db"
+   export DATABASE_URL="postgresql+asyncpg://bindu_user:<password>@localhost:5432/bindu_db"
    ```
 
 ### Cloud Deployment
@@ -202,9 +202,9 @@ export DATABASE_URL="postgresql+asyncpg://bindu_user:bindu_password@localhost:54
 3. Copy the connection string
 4. Set environment variable:
    ```bash
-   export DATABASE_URL="postgresql+asyncpg://user:pass@ep-xxx.us-east-2.aws.neon.tech/bindu?sslmode=require"
+   export DATABASE_URL="postgresql+asyncpg://<user>:<password>@ep-xxx.us-east-2.aws.neon.tech/bindu?sslmode=require"
    ```
-   
+
 ## Database Migrations
 
 Bindu uses Alembic for database migrations.
@@ -250,5 +250,3 @@ pg_dump -h hostname -U username -d bindu_db > backup.sql
 # Restore database
 psql -h hostname -U username -d bindu_db < backup.sql
 ```
-
-

@@ -75,5 +75,3 @@ def handler(messages: list[dict[str, str]]):
 
 # Bindu-fy it
 bindufy(config, handler)
-
-

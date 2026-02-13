@@ -20,13 +20,13 @@ logger = get_logger("bindu.server.endpoints.health")
 
 _start_time = time()
 
+
 @handle_endpoint_errors("health check")
 async def health_endpoint(app: BinduApplication, request: Request) -> JSONResponse:
     """Comprehensive health check endpoint.
 
     Backward-compatible implementation.
     """
-
     client_ip = get_client_ip(request)
     logger.debug(f"Health check from {client_ip}")
 
@@ -34,16 +34,25 @@ async def health_endpoint(app: BinduApplication, request: Request) -> JSONRespon
 
     storage_type = type(app._storage).__name__ if app._storage else None
     scheduler_type = type(app._scheduler).__name__ if app._scheduler else None
-    task_manager_running = (
-        app.task_manager.is_running if app.task_manager else False
-    )
+    task_manager_running = app.task_manager.is_running if app.task_manager else False
 
     # Strict readiness (new logic)
-    strict_ready = all([
-        app._storage is not None,
-        app._scheduler is not None,
-        task_manager_running,
-    ])
+    strict_ready = all(
+        [
+            app._storage is not None,
+            app._scheduler is not None,
+            task_manager_running,
+        ]
+    )
+
+    # Get agent DID if available
+    agent_did = None
+    if (
+        app.manifest
+        and hasattr(app.manifest, "did_extension")
+        and app.manifest.did_extension
+    ):
+        agent_did = app.manifest.did_extension.did
 
     payload = {
         # --- ORIGINAL FIELDS (DO NOT CHANGE BEHAVIOR) ---
@@ -51,23 +60,18 @@ async def health_endpoint(app: BinduApplication, request: Request) -> JSONRespon
         "ready": True,  # preserve original behavior for compatibility
         "uptime_seconds": uptime,
         "version": __version__,
-
         # --- NEW EXTENDED FIELDS ---
         "health": "healthy" if strict_ready else "degraded",
-
         "runtime": {
             "storage_backend": storage_type,
             "scheduler_backend": scheduler_type,
             "task_manager_running": task_manager_running,
             "strict_ready": strict_ready,
         },
-
         "application": {
             "penguin_id": str(app.penguin_id),
-            "url": app.url,
-            "description": app.description,
+            "agent_did": agent_did,
         },
-
         "system": {
             "python_version": sys.version.split()[0],
             "platform": platform.system(),

@@ -180,7 +180,7 @@ curl -X POST http://localhost:3773/did/resolve \
             "id": "did:bindu:...#key-1",
             "type": "Ed25519VerificationKey2020",
             "controller": "did:bindu:...",
-            "publicKeyBase58": "FiaPSPTW1CrjSr2f53EamW3cxZGhXNeBbSesRD31uqKe"
+            "publicKeyBase58": "<base58-encoded-public-key>"
         }
     ]
 }
@@ -218,7 +218,7 @@ When this DID was first created (ISO 8601 format with UTC timezone). Useful for:
     "id": "did:bindu:...#key-1",                    // Key identifier
     "type": "Ed25519VerificationKey2020",           // Crypto algorithm
     "controller": "did:bindu:...",                  // Who owns this key
-    "publicKeyBase58": "FiaPSPTW1CrjSr2f53EamW3cxZGhXNeBbSesRD31uqKe"
+    "publicKeyBase58": "<base58-encoded-public-key>"
 }]
 ```
 The public keys used to verify signatures from this agent. Multiple keys can be listed for key rotation.
@@ -255,7 +255,7 @@ The `authentication` section is the heart of DID security. It contains public ke
 
 **Public Key (`publicKeyBase58`)**
 ```json
-"publicKeyBase58": "FiaPSPTW1CrjSr2f53EamW3cxZGhXNeBbSesRD31uqKe"
+"publicKeyBase58": "<base58-encoded-public-key>"
 ```
 - The actual public key in Base58 encoding
 - **Base58:** Like Base64 but without confusing characters (0, O, I, l)
@@ -379,7 +379,7 @@ When an agent completes a task, the response includes a cryptographic signature 
                         "kind": "text",
                         "text": "The capital of India is **New Delhi**.",
                         "metadata": {
-                            "did.message.signature": "1BwPTcakncjnnyz5MhACUGdpLqEp59TudTKTrTeNeRmxuftxKKRjRLN6bytNtLahB5vANL8u7Lv19sYW92RHJj5"
+                            "did.message.signature": "<base58-signature>"
                         }
                     }
                 ],
@@ -418,15 +418,15 @@ async def verify_task_response(task_response):
     part = artifact["parts"][0]
     message_text = part["text"]
     signature_b58 = part["metadata"]["did.message.signature"]
-    
+
     # Get the agent's DID from the task (you'd get this from the agent card)
     agent_did = "did:bindu:gaurikasethi88_at_gmail_com:echo_agent:352c17d030fb4bf1ab33d04b102aef3d"
-    
+
     # Resolve DID to get public key
     did_doc = await resolve_did(agent_did)
     public_key_b58 = did_doc["authentication"][0]["publicKeyBase58"]
     public_key = nacl.signing.VerifyKey(base58.b58decode(public_key_b58))
-    
+
     # Verify the signature
     try:
         message_bytes = message_text.encode('utf-8')
@@ -462,20 +462,20 @@ async def find_pdf_agents():
         "https://bindus.directory/api/agents",
         params={"skill": "pdf-processing", "verified": True}
     )
-    
+
     agents = response.json()["agents"]
-    
+
     for agent in agents:
         # Resolve DID to verify it's legitimate
         did_doc = await resolve_did(agent["did"])
-        
+
         # Check creation date (prefer established agents)
         created = datetime.fromisoformat(did_doc["created"])
         age_days = (datetime.now(timezone.utc) - created).days
-        
+
         # Get agent manifest
         manifest = await httpx.get(f"{agent['url']}/.well-known/agent.json")
-        
+
         print(f"Agent: {agent['name']}")
         print(f"DID: {agent['did']}")
         print(f"Age: {age_days} days")
@@ -518,7 +518,7 @@ class PaymentProof:
         self.currency = currency
         self.timestamp = int(time.time())
         self.nonce = os.urandom(16).hex()
-    
+
     def to_dict(self):
         return {
             "from_did": self.from_did,
@@ -528,21 +528,21 @@ class PaymentProof:
             "timestamp": self.timestamp,
             "nonce": self.nonce
         }
-    
+
     def sign(self, private_key):
         """User signs payment proof"""
         message = json.dumps(self.to_dict(), sort_keys=True).encode()
         signing_key = nacl.signing.SigningKey(private_key)
         signature = signing_key.sign(message).signature
         return base58.b58encode(signature).decode()
-    
+
     def verify(self, signature):
         """Agent verifies payment came from claimed user"""
         # Resolve user's DID
         did_doc = resolve_did(self.from_did)
         public_key_b58 = did_doc["authentication"][0]["publicKeyBase58"]
         public_key = nacl.signing.VerifyKey(base58.b58decode(public_key_b58))
-        
+
         # Verify signature
         message = json.dumps(self.to_dict(), sort_keys=True).encode()
         try:
@@ -574,22 +574,22 @@ else:
 class AgentOrchestrator:
     def __init__(self):
         self.agents = {}
-    
+
     async def register_agent(self, did):
         """Register agent and verify its identity"""
         # Resolve DID
         did_doc = await resolve_did(did)
-        
+
         # Get agent capabilities
         manifest = await self.get_manifest(did_doc)
-        
+
         self.agents[did] = {
             "did": did,
             "skills": manifest["skills"],
             "public_key": did_doc["authentication"][0]["publicKeyBase58"],
             "endpoint": manifest["deployment"]["url"]
         }
-    
+
     async def route_task(self, task):
         """Route task to best agent based on skills"""
         # Find agents with required skills
@@ -597,24 +597,24 @@ class AgentOrchestrator:
             agent for agent in self.agents.values()
             if task["required_skill"] in agent["skills"]
         ]
-        
+
         if not candidates:
             raise ValueError(f"No agent found for skill: {task['required_skill']}")
-        
+
         # Use negotiation to select best agent
         best_agent = await self.negotiate(candidates, task)
-        
+
         # Send task with cryptographic proof
         result = await self.send_task(
             to_did=best_agent["did"],
             task=task,
             signature=self.sign_task(task)
         )
-        
+
         # Verify result came from expected agent
         if not self.verify_result(result, best_agent["public_key"]):
             raise SecurityError("Result signature invalid!")
-        
+
         return result
 
 # Usage
@@ -647,7 +647,7 @@ print(f"Task completed! Result: {result}")
 class AuditLog:
     def __init__(self):
         self.entries = []
-    
+
     def log_action(self, agent_did, action, data, signature):
         """Log agent action with cryptographic proof"""
         entry = {
@@ -657,27 +657,27 @@ class AuditLog:
             "data": data,
             "signature": signature
         }
-        
+
         # Verify signature
         if not self.verify_entry(entry):
             raise SecurityError("Invalid signature in audit log!")
-        
+
         self.entries.append(entry)
-    
+
     def verify_entry(self, entry):
         """Verify audit entry signature"""
         did_doc = resolve_did(entry["agent_did"])
         public_key_b58 = did_doc["authentication"][0]["publicKeyBase58"]
         # ... verification logic ...
         return True
-    
+
     def generate_report(self, start_date, end_date):
         """Generate compliance report"""
         filtered = [
             e for e in self.entries
             if start_date <= datetime.fromisoformat(e["timestamp"]) <= end_date
         ]
-        
+
         report = {
             "period": {"start": start_date, "end": end_date},
             "total_actions": len(filtered),
@@ -685,7 +685,7 @@ class AuditLog:
             "entries": filtered,
             "all_verified": all(self.verify_entry(e) for e in filtered)
         }
-        
+
         return report
 
 # Usage
@@ -755,7 +755,7 @@ import hashlib
 
 # Hash the public key to create unique identifier
 key_hash = hashlib.sha256(public_key).hexdigest()[:32]
-# Result: "352c17d030fb4bf1ab33d04b102aef3d"
+# Result: "<32-char-hex-hash>"
 ```
 
 **Step 4: Construct DID**
@@ -813,11 +813,11 @@ did_document = {
 **❌ NEVER DO THIS:**
 ```python
 # DON'T hardcode keys in code
-PRIVATE_KEY = "ed25519:5J7Xk2pQ9..."
+PRIVATE_KEY = "key_data_here" #pragma: allowlist secret
 
 # DON'T commit to git
 # .env file in repository
-AGENT_PRIVATE_KEY=ed25519:5J7Xk2pQ9...
+AGENT_PRIVATE_KEY=<key-data> #pragma: allowlist secret
 
 # DON'T store in plain text files
 with open("private_key.txt", "w") as f:
@@ -879,7 +879,7 @@ GET /.well-known/agent.json
 
 ## Inspiration
 
-[Atproto](https://atproto.com/specs/did) 
+[Atproto](https://atproto.com/specs/did)
 
 ## Related Documentation
 
@@ -887,4 +887,3 @@ GET /.well-known/agent.json
 - [Payment Integration](./PAYMENT.md) - X402 payment protocol with DIDs
 - [W3C DID Specification](https://www.w3.org/TR/did-core/)
 - [Bindu Directory](https://bindus.directory)
-

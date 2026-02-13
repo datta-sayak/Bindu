@@ -107,24 +107,24 @@ async def handle_task_update(
     # Verify token
     if authorization != "Bearer your_secret_token_here":
         raise HTTPException(status_code=401, detail="Unauthorized")
-    
+
     # Parse event
     event = await request.json()
-    
+
     # Handle different event types
     if event["kind"] == "status-update":
         task_id = event["task_id"]
         state = event["status"]["state"]
         print(f"Task {task_id} is now {state}")
-        
+
         if state == "completed":
             # Task finished - fetch results
             pass
-    
+
     elif event["kind"] == "artifact-update":
         artifact = event["artifact"]
         print(f"Artifact generated: {artifact['name']}")
-    
+
     return {"status": "received"}
 
 if __name__ == "__main__":
@@ -146,16 +146,16 @@ app.post('/webhooks/task-updates', (req, res) => {
   if (token !== 'Bearer your_secret_token_here') {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  
+
   const event = req.body;
-  
+
   // Handle events
   if (event.kind === 'status-update') {
     console.log(`Task ${event.task_id}: ${event.status.state}`);
   } else if (event.kind === 'artifact-update') {
     console.log(`Artifact: ${event.artifact.name}`);
   }
-  
+
   res.json({ status: 'received' });
 });
 
@@ -184,10 +184,10 @@ if authorization != f"Bearer {expected_token}":
 async def handle_task_update(request: Request):
     # Return 200 immediately
     event = await request.json()
-    
+
     # Process asynchronously
     asyncio.create_task(process_event(event))
-    
+
     return {"status": "received"}
 
 async def process_event(event):

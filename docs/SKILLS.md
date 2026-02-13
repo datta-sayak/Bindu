@@ -40,11 +40,11 @@ sequenceDiagram
         Note over Orchestrator,Negotiation: 5. Task Routing (Negotiation)
         Orchestrator->>Orchestrator: Task: "Extract tables from PDF"
         Orchestrator->>Negotiation: POST /agent/negotiation<br/>{task_summary}
-        
+
         Negotiation->>Negotiation: Match against skills:<br/>- Keywords: pdf, extract, tables<br/>- Tags: pdf, document<br/>- Capabilities: table_extraction<br/>- Assessment metadata
-        
+
         Negotiation->>Negotiation: Calculate scores:<br/>- Skill match: 0.92<br/>- Specialization boost: +0.3<br/>- Anti-pattern check: pass
-        
+
         Negotiation-->>Orchestrator: {<br/>  accepted: true,<br/>  score: 0.89,<br/>  skill_matches: [{<br/>    skill_id: "pdf-processing-v1",<br/>    score: 0.92<br/>  }]<br/>}
     end
 
@@ -104,11 +104,11 @@ assessment:
     - pdf
     - extract
     - document
-  
+
   specializations:
     - domain: invoice_processing
       confidence_boost: 0.3
-  
+
   anti_patterns:
     - "pdf editing"
     - "pdf creation"
@@ -185,7 +185,7 @@ tags:
 
 documentation: |
   # My Skill
-  
+
   Detailed documentation here...
 
 input_structure: |
@@ -258,19 +258,19 @@ assessment:
     - pdf
     - extract
     - document
-  
+
   # Domain specializations with confidence boost
   specializations:
     - domain: invoice_processing
       confidence_boost: 0.3
     - domain: form_filling
       confidence_boost: 0.2
-  
+
   # Patterns this skill should NOT match
   anti_patterns:
     - "pdf editing"
     - "pdf creation"
-  
+
   # Complexity indicators for performance estimation
   complexity_indicators:
     simple:
@@ -314,4 +314,3 @@ See `examples/skills/` directory for complete examples:
 - `skills/question-answering/` - Q&A capability
 - `skills/pdf-processing/` - PDF document handling
 - `skills/cbt-*/` - Therapy protocol skills
-

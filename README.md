@@ -669,7 +669,7 @@ Grateful to these projects:
 
 ---
 
-<br/> 
+<br/>
 
 ## [We will make this agents bidufied and we do need your help.](https://www.notion.so/getbindu/305d3bb65095808eac2bf720368e9804?v=305d3bb6509580189941000cfad83ae7&source=copy_link)
 
